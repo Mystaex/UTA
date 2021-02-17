@@ -1,0 +1,7 @@
+Clifford Harris,Bank of America,2,123456,134233,4500,400
+Bobby Brown,Wells Fargo,1,343434,8000
+Jermaine Cole,Wells Fargo,2,101011,132944,3000,890
+Dwayne Carter,EECU,1,676799,4000
+Kendrick Duckworth,Bank of America,2,888787,353532,6000,10000
+Nayvadius Wilburn,EECU,2,333232,100092,999,5600
+Radric Davis,Bank of America,1,466677,50000

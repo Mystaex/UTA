@@ -1,0 +1,3 @@
+Allegra Rossi,m,5,11.9900000.2,2
+Francesco Bianchi,c,3,100.0000000.2,1
+Pietro Romano,m,2,49.9900020.2,1
