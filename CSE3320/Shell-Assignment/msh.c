@@ -128,6 +128,41 @@ void listPids(pid_t* pids){
   }
 }
 
+void tokenize(char* cmd_str, char* token[MAX_NUM_ARGUMENTS], char* working_root){
+
+  int   token_count = 0;                                 
+                                                           
+  // Pointer to point to the token
+  // parsed by strsep
+  char *argument_ptr; 
+
+  char *working_str  = strdup( cmd_str );                
+
+  // we are going to move the working_str pointer so
+  // keep track of its original value so we can deallocate
+  // the correct amount at the end
+  working_root = working_str;
+
+  // Tokenize the input strings with whitespace used as the delimiter
+  while ( ( (argument_ptr = strsep(&working_str, WHITESPACE ) ) != NULL) && 
+            (token_count<MAX_NUM_ARGUMENTS)){
+    token[token_count] = strndup( argument_ptr, MAX_COMMAND_SIZE );
+    if( strlen( token[token_count] ) == 0 ){
+      token[token_count] = NULL;
+    }
+    token_count++;
+  }
+
+  // Now print the tokenized input as a debug check
+  // \TODO Remove this code and replace with your shell functionality
+
+  /*int token_index  = 0;
+  for( token_index = 0; token_index < token_count; token_index ++ ){
+    printf("token[%d] = %s\n", token_index, token[token_index] );  
+  }*/
+  
+}
+
 int main(){
 
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
@@ -158,56 +193,47 @@ int main(){
 
     /* Parse input */
     char *token[MAX_NUM_ARGUMENTS];
+    char* working_root;
 
-    int   token_count = 0;                                 
-                                                           
-    // Pointer to point to the token
-    // parsed by strsep
-    char *argument_ptr;  
-
-    insertCmd(cmds, cmd_str);                          
-                                                           
-    char *working_str  = strdup( cmd_str );                
-
-    // we are going to move the working_str pointer so
-    // keep track of its original value so we can deallocate
-    // the correct amount at the end
-    char *working_root = working_str;
-
-    // Tokenize the input strings with whitespace used as the delimiter
-    while ( ( (argument_ptr = strsep(&working_str, WHITESPACE ) ) != NULL) && 
-              (token_count<MAX_NUM_ARGUMENTS)){
-      token[token_count] = strndup( argument_ptr, MAX_COMMAND_SIZE );
-      if( strlen( token[token_count] ) == 0 ){
-        token[token_count] = NULL;
-      }
-        token_count++;
-    }
-
-    // Now print the tokenized input as a debug check
-    // \TODO Remove this code and replace with your shell functionality
-
-    int token_index  = 0;
-    for( token_index = 0; token_index < token_count; token_index ++ ){
-      printf("token[%d] = %s\n", token_index, token[token_index] );  
-    }
-    
+    tokenize(cmd_str, token, working_root);
+                                                                          
     if(token[0] != NULL){
-      /*If quit or exit are input into shell, then break the loop and quit the program.*/
+
+      //If quit or exit are input into shell, then break the loop and quit the program.
       if(!strcmp(token[0], "quit") || !strcmp(token[0], "exit")){
         break;
       }
 
-      else if(!strcmp(token[0], "listpids")){
+      //
+      if(token[0][0] == '!'){
+        char temp[3];
+        temp[0] = token[0][1];
+        temp[1] = token[0][2];
+        temp[2] = '\0';
+
+        int n = atoi(temp);
+        strcpy(cmd_str, cmds[n]);
+        
+        tokenize(cmd_str, token, working_root);
+      }
+
+      if(!strcmp(token[0], "listpids")){
+        insertCmd(cmds, cmd_str);
         listPids(pids);
       }
 
       else if(!strcmp(token[0], "history")){
+        insertCmd(cmds, cmd_str);
         history(cmds);
       }
 
+      //
       else if(!strcmp(token[0], "cd")){
-        if(token[2] == NULL){
+        insertCmd(cmds, cmd_str);
+        if(token[1] == NULL){
+          printf("cd: too few arguments\n");
+        }
+        else if(token[2] == NULL){
           chdir(token[1]);
         }
         else{
@@ -215,34 +241,29 @@ int main(){
         }
       }
 
-      else if(token[0][0] == '!'){
-        printf("Called history use func\n");
-      }
-
-      /*If command is none of the above special commands, then execute with execvp in a child process.*/
+      //If command is none of the above special commands, then execute with execvp in a child process.
       else{
+        insertCmd(cmds, cmd_str);
         pid_t pid = fork();
 
-        if( pid == -1 )
-        {
+        if( pid == -1 ){
           // When fork() returns -1, an error happened.
           perror("fork failed: ");
           exit( EXIT_FAILURE );
         }
-        else if ( pid == 0 )
-        {
+        else if ( pid == 0 ){
           // When fork() returns 0, we are in the child process.
 
-          execvp(token[0], token);
+          int ret = execvp(token[0], token);
+          if(ret == -1){
+            printf("%s: Command not found\n\n", token[0]);
+          }
           
           
           fflush(NULL);
           exit( EXIT_SUCCESS );
         }
-        else 
-        {
-
-          printf("pid: %d\n", pid);
+        else {
           insertPid(pids, pid);
 
           // When fork() returns a positive number, we are in the parent
