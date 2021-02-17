@@ -1,0 +1,11 @@
+//Ethan Chase | CSE-3318-001 | EGC7646
+//All courses have no prerequisites
+//This is a special case as there is no factor keeping any of the courses together or meaning one should take any before another.
+//If this case occurs, I have setup my program to print out the courses in original input order.
+CSE1310
+CSE1325
+MATH2425
+CSE1320
+CSE2315
+CSE3318
+MATH2326

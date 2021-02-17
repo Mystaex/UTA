@@ -1,0 +1,69 @@
+https://www.geeksforgeeks.org/efficient-huffman-coding-for-sorted-input-greedy-algo-4/
+    - Specifically for my getCodes() function as seen below. Was not inspiration for anything else.
+
+    void printCodes(struct QueueNode* root, int arr[], int top) 
+    { 
+        // Assign 0 to left edge and recur 
+        if (root->left) 
+        { 
+            arr[top] = 0; 
+            printCodes(root->left, arr, top + 1); 
+        } 
+    
+        // Assign 1 to right edge and recur 
+        if (root->right) 
+        { 
+            arr[top] = 1; 
+            printCodes(root->right, arr, top + 1); 
+        } 
+    
+        // If this is a leaf node, then it contains one of the input 
+        // characters, print the character and its code from arr[] 
+        if (isLeaf(root)) 
+        { 
+            printf("%c: ", root->data); 
+            printArr(arr, top); 
+        } 
+    }
+
+
+http://ranger.uta.edu/~alex/courses/3318/lectures/12_heaps.pdf
+    - Mrs. Stefan's slides were the majority of my inspiration
+
+    Her pseudocode:
+    
+    inspiration for my removeMin():
+        removeMax(A,&N) // Θ(lgN)
+        mx = A[1]
+        A[1] = A[(*N)]
+        (*N)=(*N)-1 //permanent
+        //Sink down from index 1
+        sinkDown(A,1,N) //to do
+        return mx
+    inspiration for my insert():
+        insert(A,newKey,&N)
+        (*N) = (*N)+1 // permanent change
+        //same as increaseKey:
+        i = (*N)
+        A[i] = newKey
+        while ((i>1)&&(A[i]>A[i/2])) {
+        swap: A[i] <-> A[i/2]
+        i = i/2 }
+    inspiration for my buildMinHeap():
+        buildMaxHeap(A,N) //Θ(N)
+        for (p = N/2; p>=1; p--)
+        sinkDown(A,p,N)
+    inspiration for my sinkDown():
+        sinkDown(A,p,N) - O(lgN)
+        left = 2*p // index of left child of p
+        right = (2*p)+1 // index of right child of p
+        index=p
+        if (left≤N)&&(A[left]>A[index])
+        index = left
+        if (right≤N)&&(A[right]>A[index])
+        index = right
+        if (index!=p) {
+        swap A[p] <-> A[index]
+        sinkDown(A,index,N) }
+
+
