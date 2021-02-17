@@ -27,6 +27,9 @@ Shell Assignment
 CSE 3320
 */
 
+//Ensure Requirement 8 
+//Ensure all formatting requirements
+
 #define _GNU_SOURCE
 
 #include <stdio.h>
@@ -56,7 +59,9 @@ void insertPid(pid_t* pids, pid_t curr){
   int full = 1;
   int spot = 0;
   int i = 0;
+  //Go through cmds string array looking for first empty spot. Assume array is full.
   while((i < MAX_NUM_ENTRIES)){
+    //If an empty spot is found, break loop and save empty index.
     if(pids[i] == -1){
       full = 0;
       spot = i;
@@ -81,12 +86,14 @@ void insertPid(pid_t* pids, pid_t curr){
 //Puts the string into the first empty spot in the cmds array.
 //If the cmds array is full, then the FIFO rule will be applied and
 //all entries will move up one spot, and put the newest pid at the end
-void insertCmd(char ** cmds/**char cmds[MAX_NUM_ENTRIES][MAX_COMMAND_SIZE]**/, char* curr){
+void insertCmd(char ** cmds, char* curr){
   int full = 1;
   int spot = 0;
   int i = 0;
+  //Go through cmds string array looking for first empty spot. Assume array is full.
   while((i < MAX_NUM_ENTRIES)){
     int x = 0;
+    //If an empty spot is found, break loop and save empty index.
     if(cmds[i][0] == 0){
       full = 0;
       spot = i;
@@ -108,9 +115,9 @@ void insertCmd(char ** cmds/**char cmds[MAX_NUM_ENTRIES][MAX_COMMAND_SIZE]**/, c
   }
 }
 
-//Goes through the pids array and prints out the entries if the space is occupied.
-//Function for listpids command
-void history(char ** cmds/*[MAX_NUM_ENTRIES][MAX_COMMAND_SIZE]*/){
+//Goes through the cmds array and prints out the entries if the space is occupied.
+//Function for history command
+void history(char ** cmds){
   int i = 0;
   while((i < MAX_NUM_ENTRIES) && (cmds[i][0] != 0)){
     printf("%2d. %s", i, cmds[i]);
@@ -118,8 +125,8 @@ void history(char ** cmds/*[MAX_NUM_ENTRIES][MAX_COMMAND_SIZE]*/){
   }
 }
 
-//Goes through the cmds array and prints out the entries if the space is occupied.
-//Function for history command
+//Goes through the pids array and prints out the entries if the space is occupied.
+//Function for listpids command
 void listPids(pid_t* pids){
   int i = 0;
   while((i < MAX_NUM_ENTRIES) && (pids[i] != -1)){
@@ -151,32 +158,27 @@ void tokenize(char* cmd_str, char* token[MAX_NUM_ARGUMENTS], char* working_root)
       token[token_count] = NULL;
     }
     token_count++;
-  }
-
-  // Now print the tokenized input as a debug check
-  // \TODO Remove this code and replace with your shell functionality
-
-  /*int token_index  = 0;
-  for( token_index = 0; token_index < token_count; token_index ++ ){
-    printf("token[%d] = %s\n", token_index, token[token_index] );  
-  }*/
-  
+  }  
 }
 
 int main(){
 
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
+
+  //Storage for listpids command
   pid_t * pids = (pid_t*)malloc(sizeof(pid_t) * MAX_NUM_ENTRIES);
-  //char cmds[MAX_NUM_ENTRIES][MAX_COMMAND_SIZE];
+
+  //Storage for history command
   char ** cmds = (char**)malloc(sizeof(char*) * MAX_NUM_ENTRIES);
 
+  //Create "free" spaces in pids array
   int i;
   for(i = 0; i < MAX_NUM_ENTRIES; i++){
     pids[i] = -1;
   }
+  //Allocate space for strings inside the cmds array
   for(i = 0; i < MAX_NUM_ENTRIES; i++){
     cmds[i] = (char*)malloc(MAX_COMMAND_SIZE);
-    //cmds[i] =  NULL
   }
 
 
@@ -204,32 +206,44 @@ int main(){
         break;
       }
 
-      //
+      //If the first character is '!', then follow case for n command from history
       if(token[0][0] == '!'){
+        //Extract n from input
         char temp[3];
         temp[0] = token[0][1];
         temp[1] = token[0][2];
         temp[2] = '\0';
-
         int n = atoi(temp);
-        strcpy(cmd_str, cmds[n]);
-        
-        tokenize(cmd_str, token, working_root);
+
+        //If the history has n command in storage, tokenize that command and run it thru if tree
+        if(cmds[n][0] != 0){
+          strcpy(cmd_str, cmds[n]);
+          tokenize(cmd_str, token, working_root);
+        }
+        //If the history doesn't have n in storage, then don't run any command and output error msg
+        else{
+          printf("Command not in history.\n");
+          token[0][0] = 0;
+        }
       }
 
+      //Case for listpids command
       if(!strcmp(token[0], "listpids")){
         insertCmd(cmds, cmd_str);
         listPids(pids);
       }
 
+      //Case for history command
       else if(!strcmp(token[0], "history")){
         insertCmd(cmds, cmd_str);
         history(cmds);
       }
 
-      //
+      //Case for cd command
       else if(!strcmp(token[0], "cd")){
         insertCmd(cmds, cmd_str);
+
+        //Ensure correct amount of arguments for cd command
         if(token[1] == NULL){
           printf("cd: too few arguments\n");
         }
@@ -242,7 +256,7 @@ int main(){
       }
 
       //If command is none of the above special commands, then execute with execvp in a child process.
-      else{
+      else if(token[0][0] != 0){
         insertCmd(cmds, cmd_str);
         pid_t pid = fork();
 
@@ -252,27 +266,22 @@ int main(){
           exit( EXIT_FAILURE );
         }
         else if ( pid == 0 ){
-          // When fork() returns 0, we are in the child process.
-
+          //Run command with any given arguments. If it can't run, output error.
           int ret = execvp(token[0], token);
           if(ret == -1){
             printf("%s: Command not found\n\n", token[0]);
           }
           
-          
           fflush(NULL);
           exit( EXIT_SUCCESS );
         }
         else {
+          //Insert pid into array of pids for use of listpids command
           insertPid(pids, pid);
 
-          // When fork() returns a positive number, we are in the parent
-          // process and the return value is the PID of the newly created
-          // child process.
           int status;
 
-          // Force the parent process to wait until the child process 
-          // exits
+          // Force the parent process to wait until the child process exits
           waitpid(pid, &status, 0 );
           fflush( NULL );
         }
@@ -283,6 +292,8 @@ int main(){
     free( working_root );
 
   }
+
+  //Free pointers
   free(pids);
   for(i = 0; i < MAX_NUM_ENTRIES; i++){
     free(cmds[i]);
