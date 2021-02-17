@@ -1,0 +1,31 @@
+Ethan Chase 
+1001457646 | EGC7646
+
+Problem 1:
+1) False
+    get_ride() and add_line() don't have to be in the same class, however it is likely they are. get_ride() has to be a function from the amusement_park class, but add_line() could possibly be in a Ride class.
+2) False
+    We can only assume it has r1 and r2, which is 2, not 3.
+3) True
+    string needs std:: if namespace is not used.
+4) False
+    get_ride() must be public as it is used outside of the class.
+5) False - True
+    We can assume that the functions is a part of the amusement_park class, but we can't be sure. It could be a part of another class.
+6) False
+    the 2 constructors used for amusement_park are a1 and a2. There isn't a duplicate of either with different parameters.
+7) True
+    We can tell it returns an int as it is set to int n in an instance of its use.
+8) True
+    Since we can see a1 and a2 are objects of amusement_park, and get_ride() is used on them, then get_ride() must be in the amusement_park class.
+9) False
+    We can assume it may be a object ride, but we can't tell from the code alone.
+10) False - True
+    There are 3 classes used and 4 objects created.
+
+Problem 2:
+1) Creating and initializing an object
+2) Creating an object
+3) Creating and initializing a variable (by storing a function return value)
+4) Creating and initializing a variable (by hardcoding)
+5) Assigning a value to a variable (by storing a function return value)
