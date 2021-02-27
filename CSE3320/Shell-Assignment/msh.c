@@ -22,13 +22,9 @@
 // THE SOFTWARE.
 
 /*
-Ethan Chase
-Shell Assignment
-CSE 3320
-*/
-
-//Ensure Requirement 8 
-//Ensure all formatting requirements
+  Ethan Chase
+  ID: 1001457646
+*/  
 
 #define _GNU_SOURCE
 
@@ -55,7 +51,9 @@ CSE 3320
 //Puts the pid into the first empty spot in the pids array.
 //If the pids array is full, then the FIFO rule will be applied and
 //all entries will move up one spot, and put the newest pid at the end
+//The parameters taken in are the array of pids and the current pid to add
 void insertPid(pid_t* pids, pid_t curr){
+  //Assume the array is full and set otherwise if empty spot is found
   int full = 1;
   int spot = 0;
   int i = 0;
@@ -70,11 +68,12 @@ void insertPid(pid_t* pids, pid_t curr){
     i++;
   }
 
-  //Case of the array having an empty space
+  //Case of the array having an empty space. Set first empty space to the current command
   if(!full){
     pids[spot] = curr;
   }
-  //Case of the array being full and having to apply FIFO
+  //Case of the array being full and having to apply FIFO with all entries moving forward one
+  //space, replacing the first entry and the current command going in the last space (14)
   else{
     for(i = 0; i < (MAX_NUM_ENTRIES-1); i++){
       pids[i] = pids[i+1];
@@ -86,13 +85,14 @@ void insertPid(pid_t* pids, pid_t curr){
 //Puts the string into the first empty spot in the cmds array.
 //If the cmds array is full, then the FIFO rule will be applied and
 //all entries will move up one spot, and put the newest pid at the end
+//The parameters taken in are the array of commands and the current command to add
 void insertCmd(char ** cmds, char* curr){
+  //Assume the array is full and set otherwise if empty spot is found
   int full = 1;
   int spot = 0;
   int i = 0;
-  //Go through cmds string array looking for first empty spot. Assume array is full.
+  //Go through cmds string array looking for first empty spot.
   while((i < MAX_NUM_ENTRIES)){
-    int x = 0;
     //If an empty spot is found, break loop and save empty index.
     if(cmds[i][0] == 0){
       full = 0;
@@ -102,11 +102,12 @@ void insertCmd(char ** cmds, char* curr){
     i++;
   }
 
-  //Case of the array having an empty space
+  //Case of the array having an empty space. Set first empty space to the current command
   if(!full){
     strcpy(cmds[spot],curr);
   }
-  //Case of the array being full and having to apply FIFO
+  //Case of the array being full and having to apply FIFO with all entries moving forward one
+  //space (n-1), replacing the first entry and the current command going in the last space (14)
   else{
     for(i = 0; i < (MAX_NUM_ENTRIES-1); i++){
       strcpy(cmds[i],cmds[i+1]);
@@ -117,44 +118,48 @@ void insertCmd(char ** cmds, char* curr){
 
 //Goes through the cmds array and prints out the entries if the space is occupied.
 //Function for history command
+//Takes in the array of commands
 void history(char ** cmds){
   int i = 0;
   while((i < MAX_NUM_ENTRIES) && (cmds[i][0] != 0)){
-    printf("%2d. %s", i, cmds[i]);
+    printf("%2d: %s", i, cmds[i]);
     i++;
   }
 }
 
 //Goes through the pids array and prints out the entries if the space is occupied.
 //Function for listpids command
+//Takes in the array of pids
 void listPids(pid_t* pids){
   int i = 0;
   while((i < MAX_NUM_ENTRIES) && (pids[i] != -1)){
-    printf("%2d. %d\n", i, pids[i]);
+    printf("%2d: %d\n", i, pids[i]);
     i++;
   }
 }
 
+//Takes in a string of input from the command line and splits it into tokens for 
+//each individual "word"
+//Takes in the current command inputted, an token array to tokenize into, and a 
+//string to work through the current command with.
 void tokenize(char* cmd_str, char* token[MAX_NUM_ARGUMENTS], char* working_root){
 
   int   token_count = 0;                                 
                                                            
   // Pointer to point to the token
   // parsed by strsep
-  char *argument_ptr; 
-
-  char *working_str  = strdup( cmd_str );                
+  char *argument_ptr;               
 
   // we are going to move the working_str pointer so
   // keep track of its original value so we can deallocate
   // the correct amount at the end
-  working_root = working_str;
+  char* working_str = working_root;
 
   // Tokenize the input strings with whitespace used as the delimiter
-  while ( ( (argument_ptr = strsep(&working_str, WHITESPACE ) ) != NULL) && 
+  while(((argument_ptr = strsep(&working_str, WHITESPACE)) != NULL) && 
             (token_count<MAX_NUM_ARGUMENTS)){
-    token[token_count] = strndup( argument_ptr, MAX_COMMAND_SIZE );
-    if( strlen( token[token_count] ) == 0 ){
+    token[token_count] = strndup(argument_ptr, MAX_COMMAND_SIZE);
+    if(strlen( token[token_count]) == 0){
       token[token_count] = NULL;
     }
     token_count++;
@@ -166,7 +171,7 @@ int main(){
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
 
   //Storage for listpids command
-  pid_t * pids = (pid_t*)malloc(sizeof(pid_t) * MAX_NUM_ENTRIES);
+  pid_t* pids = (pid_t*)malloc(sizeof(pid_t) * MAX_NUM_ENTRIES);
 
   //Storage for history command
   char ** cmds = (char**)malloc(sizeof(char*) * MAX_NUM_ENTRIES);
@@ -196,7 +201,7 @@ int main(){
     /* Parse input */
     char *token[MAX_NUM_ARGUMENTS];
     char* working_root;
-
+    working_root  = strdup( cmd_str );  
     tokenize(cmd_str, token, working_root);
                                                                           
     if(token[0] != NULL){
@@ -215,12 +220,13 @@ int main(){
         temp[2] = '\0';
         int n = atoi(temp);
 
-        //If the history has n command in storage, tokenize that command and run it thru if tree
+        //If the history has n command in storage, tokenize that command and run it through
+        //if statements for commands.
         if(cmds[n][0] != 0){
           strcpy(cmd_str, cmds[n]);
           tokenize(cmd_str, token, working_root);
         }
-        //If the history doesn't have n in storage, then don't run any command and output error msg
+        //If the history doesn't have n commands, then don't run any command and output error msg
         else{
           printf("Command not in history.\n");
           token[0][0] = 0;
@@ -247,6 +253,7 @@ int main(){
         if(token[1] == NULL){
           printf("cd: too few arguments\n");
         }
+        //If correct # of args, then change directory
         else if(token[2] == NULL){
           chdir(token[1]);
         }
@@ -255,7 +262,7 @@ int main(){
         }
       }
 
-      //If command is none of the above special commands, then execute with execvp in a child process.
+      //If command is none of the above special cases, then execute with execvp in a child process
       else if(token[0][0] != 0){
         insertCmd(cmds, cmd_str);
         pid_t pid = fork();
@@ -266,8 +273,8 @@ int main(){
           exit( EXIT_FAILURE );
         }
         else if ( pid == 0 ){
-          //Run command with any given arguments. If it can't run, output error.
-          int ret = execvp(token[0], token);
+          //Run command with any given arguments (Max of 10). If it can't run, output error.
+          int ret = execvp(token[0], &token[0]);
           if(ret == -1){
             printf("%s: Command not found\n\n", token[0]);
           }
@@ -287,17 +294,18 @@ int main(){
         }
       }
     }
-    
 
     free( working_root );
 
   }
 
-  //Free pointers
+  //Free pointers used in listpids and history storage
   free(pids);
   for(i = 0; i < MAX_NUM_ENTRIES; i++){
     free(cmds[i]);
   }
   free(cmds);
+  
+  //Return status 0
   return 0;
 }
