@@ -277,6 +277,7 @@ int main(){
           int ret = execvp(token[0], &token[0]);
           if(ret == -1){
             printf("%s: Command not found\n\n", token[0]);
+            exit(0);
           }
           
           fflush(NULL);
