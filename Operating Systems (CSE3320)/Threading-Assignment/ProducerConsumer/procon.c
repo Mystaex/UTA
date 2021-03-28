@@ -64,9 +64,9 @@ void * readf(){
     }
 
     //Hand control back and forth between consumer and producer(this)
-    //untill text in file is finished. Ends when input character is NULL or \n
+    //untill text in file is finished. Ends when input character is NULL
     char curr = fgetc(fp);              //First char read is necessary to start the shile loop
-    while(curr > 0 && curr != 10){
+    while(curr > 0 && curr < 256){
         sem_wait(&chars_in_line);       //Take control
         enqueue(curr);                  //Send char 
         curr = fgetc(fp);               //Read new char
