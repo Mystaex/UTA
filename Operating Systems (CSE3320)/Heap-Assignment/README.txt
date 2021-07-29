@@ -1,3 +1,4 @@
+Ethan Chase
 ***********************************
 Description:
 Implements malloc with own memory allocation rules such as best, worst, next, and first fit.
@@ -10,3 +11,5 @@ run instructions:
 	<fit.so> can be bf.so, wf.so, ff.so, or nf.so for best, worst, first, and next fit.
 	all test programs are stored in the "tests/" folder
 ***********************************
+Notes:
+Made for Ubuntu Linux
