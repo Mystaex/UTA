@@ -19,7 +19,8 @@ Description:
     time into a circular queue, and outputs them in the same order.
 ======================================
 Notes:
-
+    Made for Ubuntu Linux
+    
     I chose to only output the result from the consumer thread, as to make the message continuous.
     I found that if the producer also outputted when a char was read, then the message 
     became obscure.
