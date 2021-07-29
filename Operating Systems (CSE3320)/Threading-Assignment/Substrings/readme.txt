@@ -25,7 +25,8 @@ Description:
     - N1/T > N2
 ======================================
 Notes:
-
+    Made for Ubuntu Linux
+    
     In the input files, S1 is taken from the first line of the .txt file and S2 is taken from 
     the second. ie.
     "abzzzzabzab
