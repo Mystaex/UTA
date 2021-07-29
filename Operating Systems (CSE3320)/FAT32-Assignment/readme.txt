@@ -6,6 +6,7 @@ Ethan Chase
 File(s) included: mfs.c
                   fat32.img (FAT32 image file)
 **************
+Description:
 This program reads a given FAT32 image file byte-by-byte and allows the user to perform a variety of functions with the files and information by utilizing fseek().
 **************
 Compilation instructions:
